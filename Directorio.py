@@ -11,28 +11,54 @@ class Directorio:
         self.ListasMatricesReducidas = ListaSimple()
         self.Lista = ListaSimple()
 
+    def ObtenerListas(self):
+        return self.Lista
+
+    def VerCaminoNN(self, PathCompleto):
+        longitud = len(PathCompleto.split('/'))
+        nombre =PathCompleto.split('/')[longitud-1]
+        pathSinNobre = PathCompleto.replace(nombre,"")
+        return pathSinNobre
+
+
     def LeerArchivo(self):
         
         Lista = ListaC()
         for matriz in self.archivoXml.getElementsByTagName("matriz"):
-            nombreMatriz=matriz.getAttribute("nombre")
-            print("Analizando matriz: " + nombreMatriz)
+            NombreM=matriz.getAttribute("nombre")
+            print("Analizando matriz: " + NombreM)
             tuplas = int(matriz.getAttribute("n"))
             columnas = int(matriz.getAttribute("m"))
             print(" >tuplas=" + str(matriz.getAttribute("n")))
             print(" >columnas=" + str(matriz.getAttribute("m")))
-            for dato in matriz.getElementsByTagName("dato"):
-                Valor = int(dato.firstChild.data)
-                altura = int(dato.getAttribute("x"))
-                columna = int(dato.getAttribute("y"))
-                Lista.Agregar(Valor, columna, altura)
-            Analizador = MatrizAnalizador(Lista,tuplas,columnas)
-            Analizador.ConvertirABinaria()
-            Analizador.CompararTuplasDeMatrizBinaria()
-            Analizador.addTuplaNoSumadas()
+            for Elemento in matriz.getElementsByTagName("dato"):
+                Dato = int(Elemento.firstChild.data)
+                Fila = int(Elemento.getAttribute("x"))
+                columna = int(Elemento.getAttribute("y"))
+                Lista.Agregar(Dato, columna, Fila)
+            Ana = MatrizAnalizador(Lista,tuplas,columnas)
+            Ana.ConvertirABinaria()
+            Ana.CompararTuplasDeMatrizBinaria()
+            Ana.addTuplaNoSumadas()
             print("*********************************************************************")
-            self.Lista.AgregarINFORMACION(nombreMatriz, tuplas, columnas,Lista, None)
-            self.ListasMatricesReducidas.AgregarINFORMACION(nombreMatriz, Analizador.getTuplaTotales(), columnas, Analizador.getMatrizFrecuencia(), Analizador.RegistroDeFrecuencias)
+            self.Lista.AgregarINFORMACION(NombreM, tuplas, columnas,Lista, None)
+            self.ListasMatricesReducidas.AgregarINFORMACION(NombreM, Ana.getTuplaTotales(), columnas, Ana.getMatrizFrecuencia(), Ana.RegistroDeFrecuencias)
+
+
+    def RETake(self, path):
+        Archivo = open( path +"cache.xml", encoding='utf-8')
+        ArchivoFrec = open(path+"frecuencias.xml","w",encoding='utf-8')
+        linea = Archivo.readline()
+        lineaFormateada = linea.replace("</matriz>", "\n</matriz>")
+        lineaFormateada = lineaFormateada.replace("<matriz", " \n<matriz")
+        lineaFormateada = lineaFormateada.replace("<dato", "\n       <datos")
+        lineaFormateada = lineaFormateada.replace("</matrices>", "\n</matrices>")
+        lineaFormateada = lineaFormateada.replace("<frecuenci", "\n       <frecuenci")
+        for linea2 in lineaFormateada.split("\n"):
+            ArchivoFrec.write(linea2 + "\n") 
+        ArchivoFrec.close()
+        Archivo.close()
+        remove(path +"cache.xml")
     
     def EscribirArchivo(self, CaminoNn):
         auxiliar = self.ListasMatricesReducidas.Inicio
@@ -60,30 +86,6 @@ class Directorio:
             auxiliar = auxiliar.siguiente
         Archivo = ET.ElementTree(matrices)
         Archivo.write(Camino + "cache.xml")
-        self.Formatear(CaminoNn)
+        self.RETake(CaminoNn)
         
         
-    
-    def Formatear(self, path):
-        Archivo = open( path +"cache.xml", encoding='utf-8')
-        Archivo2 = open(path+"frecuencias.xml","w",encoding='utf-8')
-        linea = Archivo.readline()
-        lineaFormateada = linea.replace("</matriz>", "\n</matriz>")
-        lineaFormateada = lineaFormateada.replace("<matriz", " \n<matriz")
-        lineaFormateada = lineaFormateada.replace("<dato", "\n       <datos")
-        lineaFormateada = lineaFormateada.replace("</matrices>", "\n</matrices>")
-        lineaFormateada = lineaFormateada.replace("<frecuenci", "\n       <frecuenci")
-        for linea2 in lineaFormateada.split("\n"):
-            Archivo2.write(linea2 + "\n") 
-        Archivo2.close()
-        Archivo.close()
-        remove(path +"cache.xml")
-
-    def ObtenerListas(self):
-        return self.Lista
-
-    def VerCaminoNN(self, PathCompleto):
-        longitud = len(PathCompleto.split('/'))
-        nombre =PathCompleto.split('/')[longitud-1]
-        pathSinNobre = PathCompleto.replace(nombre,"")
-        return pathSinNobre
