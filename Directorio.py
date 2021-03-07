@@ -1,9 +1,10 @@
-from xml.dom import minidom
-from ListaCir import ListaC
-from MatrizAnalizador import MatrizAnalizador
+from ListaCircular import ListaC
 import xml.etree.cElementTree as ET
 from ListaSimple import ListaSimple
+from ProcesarMatriz import ProcesarMatriz
+import os
 from os import remove
+from xml.dom import minidom
 class Directorio:
     def __init__(self, rutaDelArchivo):
         self.NombreDelArchivo =  rutaDelArchivo
@@ -14,11 +15,11 @@ class Directorio:
     def ObtenerListas(self):
         return self.Lista
 
-    def VerCaminoNN(self, PathCompleto):
-        longitud = len(PathCompleto.split('/'))
-        nombre =PathCompleto.split('/')[longitud-1]
-        pathSinNobre = PathCompleto.replace(nombre,"")
-        return pathSinNobre
+    def VerCaminoNN(self, CaminoCompleto):
+        longitud = len(CaminoCompleto.split('/'))
+        nombre =CaminoCompleto.split('/')[longitud-1]
+        CaminoN = CaminoCompleto.replace(nombre,"")
+        return CaminoN
 
 
     def LeerArchivo(self):
@@ -27,34 +28,31 @@ class Directorio:
         for matriz in self.archivoXml.getElementsByTagName("matriz"):
             NombreM=matriz.getAttribute("nombre")
             print("Analizando matriz: " + NombreM)
-            tuplas = int(matriz.getAttribute("n"))
+            Filas = int(matriz.getAttribute("n"))
             columnas = int(matriz.getAttribute("m"))
-            print(" >tuplas=" + str(matriz.getAttribute("n")))
-            print(" >columnas=" + str(matriz.getAttribute("m")))
             for Elemento in matriz.getElementsByTagName("dato"):
                 Dato = int(Elemento.firstChild.data)
                 Fila = int(Elemento.getAttribute("x"))
                 columna = int(Elemento.getAttribute("y"))
                 Lista.Agregar(Dato, columna, Fila)
-            Ana = MatrizAnalizador(Lista,tuplas,columnas)
-            Ana.ConvertirABinaria()
-            Ana.CompararTuplasDeMatrizBinaria()
+            Ana = ProcesarMatriz(Lista,Filas,columnas)
+            Ana.ABinaria()
+            Ana.CompararTBinarias()
             Ana.addTuplaNoSumadas()
-            print("*********************************************************************")
-            self.Lista.AgregarINFORMACION(NombreM, tuplas, columnas,Lista, None)
-            self.ListasMatricesReducidas.AgregarINFORMACION(NombreM, Ana.getTuplaTotales(), columnas, Ana.getMatrizFrecuencia(), Ana.RegistroDeFrecuencias)
+            self.Lista.AgregarINFORMACION(NombreM, Filas, columnas,Lista, None)
+            self.ListasMatricesReducidas.AgregarINFORMACION(NombreM, Ana.getTuplaTotales(), columnas, Ana.ObtenerMF(), Ana.FrecuenciasRegistradas)
 
 
     def RETake(self, path):
         Archivo = open( path +"cache.xml", encoding='utf-8')
         ArchivoFrec = open(path+"frecuencias.xml","w",encoding='utf-8')
         linea = Archivo.readline()
-        lineaFormateada = linea.replace("</matriz>", "\n</matriz>")
-        lineaFormateada = lineaFormateada.replace("<matriz", " \n<matriz")
-        lineaFormateada = lineaFormateada.replace("<dato", "\n       <datos")
-        lineaFormateada = lineaFormateada.replace("</matrices>", "\n</matrices>")
-        lineaFormateada = lineaFormateada.replace("<frecuenci", "\n       <frecuenci")
-        for linea2 in lineaFormateada.split("\n"):
+        Lineacambiada = linea.replace("</matriz>", "\n</matriz>")
+        Lineacambiada = Lineacambiada.replace("<matriz", " \n<matriz")
+        Lineacambiada = Lineacambiada.replace("<dato", "\n       <datos")
+        Lineacambiada = Lineacambiada.replace("</matrices>", "\n</matrices>")
+        Lineacambiada = Lineacambiada.replace("<frecuenci", "\n       <frecuenci")
+        for linea2 in Lineacambiada.split("\n"):
             ArchivoFrec.write(linea2 + "\n") 
         ArchivoFrec.close()
         Archivo.close()
@@ -76,12 +74,12 @@ class Directorio:
                     columa = columa+1
                     ET.SubElement(doc, "dato", y=str(columa), x= str(fila)).text= str(auxiliarDatos.dato)
                     auxiliarDatos = auxiliarDatos.siguiente
-            listaDeFrecuencias = auxiliar.ListaNoFrecuencia
-            auxListaDeFrecu = listaDeFrecuencias.Inicio
+            ListaF = auxiliar.ListaNoFrecuencia
+            AuxListaF = ListaF.Inicio
             contadorDeFilas=0
-            while auxListaDeFrecu != None:
-                ET.SubElement(doc, "frecuencia", g=str(contadorDeFilas+1)).text = str(auxListaDeFrecu.dato)
-                auxListaDeFrecu = auxListaDeFrecu.siguiente
+            while AuxListaF != None:
+                ET.SubElement(doc, "frecuencia", g=str(contadorDeFilas+1)).text = str(AuxListaF.dato)
+                AuxListaF = AuxListaF.siguiente
                 contadorDeFilas=contadorDeFilas+1
             auxiliar = auxiliar.siguiente
         Archivo = ET.ElementTree(matrices)
