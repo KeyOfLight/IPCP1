@@ -8,9 +8,9 @@ from xml.dom import minidom
 class Directorio:
     def __init__(self, rutaDelArchivo):
         self.NombreDelArchivo =  rutaDelArchivo
-        self.archivoXml = minidom.parse(rutaDelArchivo)
-        self.ListasMatricesReducidas = ListaSimple()
         self.Lista = ListaSimple()
+        self.LMatReducidas = ListaSimple()
+        self.arxml = minidom.parse(rutaDelArchivo)
 
     def ObtenerListas(self):
         return self.Lista
@@ -22,10 +22,10 @@ class Directorio:
         return CaminoN
 
 
-    def LeerArchivo(self):
+    def ProcesarArchivo(self):
         
         Lista = ListaC()
-        for matriz in self.archivoXml.getElementsByTagName("matriz"):
+        for matriz in self.arxml.getElementsByTagName("matriz"):
             NombreM=matriz.getAttribute("nombre")
             print("Analizando matriz: " + NombreM)
             Filas = int(matriz.getAttribute("n"))
@@ -34,18 +34,18 @@ class Directorio:
                 Dato = int(Elemento.firstChild.data)
                 Fila = int(Elemento.getAttribute("x"))
                 columna = int(Elemento.getAttribute("y"))
-                Lista.Agregar(Dato, columna, Fila)
+                Lista.Add(Dato, columna, Fila)
             Ana = ProcesarMatriz(Lista,Filas,columnas)
             Ana.ABinaria()
             Ana.CompararTBinarias()
-            Ana.addTuplaNoSumadas()
-            self.Lista.AgregarINFORMACION(NombreM, Filas, columnas,Lista, None)
-            self.ListasMatricesReducidas.AgregarINFORMACION(NombreM, Ana.getTuplaTotales(), columnas, Ana.ObtenerMF(), Ana.FrecuenciasRegistradas)
+            Ana.NoSumadas()
+            self.Lista.AddInfo(NombreM, Filas, columnas,Lista, None)
+            self.LMatReducidas.AddInfo(NombreM, Ana.getTuplaTotales(), columnas, Ana.ObtenerMF(), Ana.FrecuenciasRegistradas)
 
 
-    def RETake(self, path):
-        Archivo = open( path +"cache.xml", encoding='utf-8')
-        ArchivoFrec = open(path+"frecuencias.xml","w",encoding='utf-8')
+    def RETake(self, Camino):
+        Archivo = open( Camino +"cache.xml", encoding='utf-8')
+        ArchivoFrec = open(Camino+"frecuencias.xml","w",encoding='utf-8')
         linea = Archivo.readline()
         Lineacambiada = linea.replace("</matriz>", "\n</matriz>")
         Lineacambiada = Lineacambiada.replace("<matriz", " \n<matriz")
@@ -56,29 +56,29 @@ class Directorio:
             ArchivoFrec.write(linea2 + "\n") 
         ArchivoFrec.close()
         Archivo.close()
-        remove(path +"cache.xml")
+        remove(Camino +"cache.xml")
     
     def EscribirArchivo(self, CaminoNn):
-        auxiliar = self.ListasMatricesReducidas.Inicio
+        auxiliar = self.LMatReducidas.Inicio
         Camino = CaminoNn
         matrices  = ET.Element("matrices")
         while auxiliar != None:
             nombre =  auxiliar.nombre
             filas = auxiliar.filas
             columnas = auxiliar.columnas
-            doc = ET.SubElement(matrices, "matriz", m=str(columnas), n=str(filas),  nombre= nombre)
-            auxiliarDatos = auxiliar.Lista.ultimo.siguiente
+            doc = ET.SubElement(matrices, "matriz", nombre= nombre, m=str(columnas), n=str(filas))
+            auxiliarDatos = auxiliar.Lista.Last.siguiente
             for fila in range(int(filas)):
                 fila = fila+1
                 for columa in range(int(columnas)):
                     columa = columa+1
-                    ET.SubElement(doc, "dato", y=str(columa), x= str(fila)).text= str(auxiliarDatos.dato)
+                    ET.SubElement(doc, "dato", x=str(columa), y= str(fila)).text= str(auxiliarDatos.dato)
                     auxiliarDatos = auxiliarDatos.siguiente
             ListaF = auxiliar.ListaNoFrecuencia
             AuxListaF = ListaF.Inicio
             contadorDeFilas=0
             while AuxListaF != None:
-                ET.SubElement(doc, "frecuencia", g=str(contadorDeFilas+1)).text = str(AuxListaF.dato)
+                ET.SubElement(doc, "Matrizfrecuencias", g=str(contadorDeFilas+1)).text = str(AuxListaF.dato)
                 AuxListaF = AuxListaF.siguiente
                 contadorDeFilas=contadorDeFilas+1
             auxiliar = auxiliar.siguiente

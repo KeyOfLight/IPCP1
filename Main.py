@@ -1,7 +1,7 @@
 from ListaCircular import ListaC
 from Directorio import Directorio
 listaCircular = ListaC()
-from Grafico import Grafico
+from CreacionGraph import CreacionGraph
 import os
 opcion = 0
 Camino = ""
@@ -38,7 +38,7 @@ while True:
         print("|°          Procesando el archivo               °|")
         print("||||||||||||||||||||||||||||||||||||||||||||||||||")
         print("Procesando ")
-        archivo.LeerArchivo()
+        archivo.ProcesarArchivo()
         listas = archivo.ObtenerListas()
 
 
@@ -52,14 +52,19 @@ while True:
     elif opcion==4:
         print("|||||||||||||||||||||||||||||||||||||||||||||||||")
         print("|°                  DATOS                      °|")
+        print("|°                DIEGO ANDRÉ GÓMEZ            °|")
+        print("|°                  201908327                  °|")
+        print("|°INTRODUCCION A LA PROGRAMACION Y COMPUTACION 2 SECCION A°|")
+        print("|°       INGENIERIA EN CIENCIAS SISTEMAS       °|")
+        print("|°                4to SEMESTRE                 °|")
         print("|||||||||||||||||||||||||||||||||||||||||||||||||")
 
 
     elif opcion==5:
         print("||||||||||||||||||||||||||||||||||||||||||||||||||")
-        print("|°    GENERANDO GRAFICO EN RUTA DEL ARCHIVO     °|")
+        print("|°             CREANDO GRAFICA                  °|")
         print("||||||||||||||||||||||||||||||||||||||||||||||||||")
-        x = Grafico(listas,Camino)
+        x = CreacionGraph(listas,Camino)
         x.CrearGrafico()
 
     elif opcion ==6:

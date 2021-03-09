@@ -1,8 +1,8 @@
 class NodoInfo:
-    def __init__(self, pNombre, pFilas, pColumas, pLista,PListaFrecuencia):
-        self.nombre = pNombre
-        self.filas = pFilas
-        self.columnas = pColumas
-        self.Lista = pLista
+    def __init__(self, posNombre, posFilas, posColumas, posLista,PosListaFrecuencia):
+        self.nombre = posNombre
+        self.filas = posFilas
+        self.columnas = posColumas
+        self.Lista = posLista
         self.siguiente = None
-        self.ListaNoFrecuencia = PListaFrecuencia
+        self.ListaNoFrecuencia = PosListaFrecuencia

@@ -40,7 +40,7 @@ class ListaSimple:
                 auxiliar =  auxiliar.siguiente
         return conta
 
-    def AgregarINFORMACION(self, pNombre, pfilas,pColumas, pLista, PListaFrecuencia):
+    def AddInfo(self, pNombre, pfilas,pColumas, pLista, PListaFrecuencia):
         if self.Vacia() == False:
             self.Ultimo.siguiente = NodoInfo(pNombre,pfilas,pColumas,pLista,PListaFrecuencia)
             self.Ultimo = self.Ultimo.siguiente
